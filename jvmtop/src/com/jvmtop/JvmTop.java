@@ -287,7 +287,7 @@ public class JvmTop
       System.out.print('\f');
     }
     else
-    {
+    { 
       System.out.print(CLEAR_TERMINAL_ANSI_CMD);
     }
   }
