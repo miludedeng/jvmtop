@@ -22,11 +22,8 @@
 package com.jvmtop.view;
 
 import java.lang.management.ThreadInfo;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,23 +32,6 @@ import com.jvmtop.monitor.JstatInfo;
 import com.jvmtop.monitor.VMInfo;
 import com.jvmtop.monitor.VMInfoState;
 import com.jvmtop.openjdk.tools.LocalVirtualMachine;
-
-import sun.jvmstat.monitor.Monitor;
-import sun.jvmstat.monitor.MonitorException;
-import sun.jvmstat.monitor.MonitoredHost;
-import sun.jvmstat.monitor.MonitoredVm;
-import sun.jvmstat.monitor.Units;
-import sun.jvmstat.monitor.Variability;
-import sun.jvmstat.monitor.VmIdentifier;
-import sun.jvmstat.monitor.event.HostEvent;
-import sun.jvmstat.monitor.event.HostListener;
-import sun.jvmstat.monitor.event.VmStatusChangeEvent;
-import sun.tools.jstat.Arguments;
-import sun.tools.jstat.JStatLogger;
-import sun.tools.jstat.OptionFormat;
-import sun.tools.jstat.OptionOutputFormatter;
-import sun.tools.jstat.OutputFormatter;
-import sun.tools.jstat.RawOutputFormatter;
 
 /**
  * "detail" view, printing detail metrics of a specific jvm. Also printing the

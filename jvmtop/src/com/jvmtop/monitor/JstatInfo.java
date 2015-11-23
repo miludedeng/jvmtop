@@ -1,28 +1,13 @@
 package com.jvmtop.monitor;
 
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
-import sun.jvmstat.monitor.Monitor;
 import sun.jvmstat.monitor.MonitorException;
 import sun.jvmstat.monitor.MonitoredHost;
 import sun.jvmstat.monitor.MonitoredVm;
-import sun.jvmstat.monitor.Units;
-import sun.jvmstat.monitor.Variability;
 import sun.jvmstat.monitor.VmIdentifier;
-import sun.jvmstat.monitor.event.HostEvent;
-import sun.jvmstat.monitor.event.HostListener;
-import sun.jvmstat.monitor.event.VmStatusChangeEvent;
 import sun.tools.jstat.Arguments;
-import sun.tools.jstat.JStatLogger;
 import sun.tools.jstat.OptionFormat;
-import sun.tools.jstat.OptionLister;
 import sun.tools.jstat.OptionOutputFormatter;
 import sun.tools.jstat.OutputFormatter;
-import sun.tools.jstat.RawOutputFormatter;
 
 /**
  * Application to output jvmstat statistics exported by a target Java Virtual
