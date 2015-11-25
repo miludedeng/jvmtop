@@ -1,13 +1,16 @@
 package com.jvmtop.monitor;
 
+import java.net.URISyntaxException;
+
+import sun.jvmstat.monitor.Monitor;
 import sun.jvmstat.monitor.MonitorException;
 import sun.jvmstat.monitor.MonitoredHost;
 import sun.jvmstat.monitor.MonitoredVm;
+import sun.jvmstat.monitor.Variability;
 import sun.jvmstat.monitor.VmIdentifier;
-import sun.tools.jstat.Arguments;
-import sun.tools.jstat.OptionFormat;
-import sun.tools.jstat.OptionOutputFormatter;
-import sun.tools.jstat.OutputFormatter;
+import sun.jvmstat.perfdata.monitor.PerfLongMonitor;
+import sun.tools.jstat.Identifier;
+import sun.tools.jstat.Literal;
 
 /**
  * Application to output jvmstat statistics exported by a target Java Virtual
@@ -20,16 +23,14 @@ import sun.tools.jstat.OutputFormatter;
  */
 public class JstatInfo {
 
-	static final String	arg	= "-gcutil";
 	private String		vmid_;
-	private String		header;
-	private String		row;
+	private MonitoredVm	vm_;
 
 	public JstatInfo(String vmID) {
 		try {
 			vmid_ = vmID;
-			init( vmID );
-		} catch (MonitorException e) {
+			init();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -37,66 +38,252 @@ public class JstatInfo {
 	public JstatInfo(int vmID) {
 		try {
 			vmid_ = vmID + "";
-			init( vmid_ );
-		} catch (MonitorException e) {
+			init();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void update(){
+	public void update() {
 		try {
-			init(vmid_);
-		} catch (MonitorException e) {
+			init();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void init(String vmID) throws MonitorException {
-		Arguments arguments = new Arguments( new String[] { arg, vmID } );
-		final VmIdentifier vmId = arguments.vmId();
-		int interval = arguments.sampleInterval();
-		final MonitoredHost monitoredHost = MonitoredHost.getMonitoredHost( vmId );
-		MonitoredVm monitoredVm = monitoredHost.getMonitoredVm( vmId, interval );
-		OutputFormatter formatter = null;
+	private void init() throws MonitorException, URISyntaxException {
+		VmIdentifier vmId = new VmIdentifier( vmid_ );
+		MonitoredHost monitoredHost = MonitoredHost.getMonitoredHost( vmId );
+		vm_ = monitoredHost.getMonitoredVm( vmId, 0 );
+	}
 
-		OptionFormat format = arguments.optionFormat();
-		formatter = new OptionOutputFormatter( monitoredVm, format );
-		setHeader( formatter.getHeader() );
-		setRow( formatter.getRow() );
+	/**
+	 * 幸存者1容量
+	 * 
+	 * @return
+	 */
+	public String getSurvival1Capacity() {
+		String exper = "sun.gc.generation.0.space.1.capacity";
+		return getValueByExper( exper );
+	}
+
+	/**
+	 * 幸存者2容量
+	 * 
+	 * @return
+	 */
+	public String getSurvival2Capacity() {
+		String exper = "sun.gc.generation.0.space.2.capacity";
+		return getValueByExper( exper );
+	}
+
+	/**
+	 * 幸存者1已使用
+	 * 
+	 * @return
+	 */
+	public String getSurvival1Used() {
+		String exper = "sun.gc.generation.0.space.1.used";
+		return getValueByExper( exper );
+	}
+
+	/**
+	 * 幸存者2已使用
+	 * 
+	 * @return
+	 */
+	public String getSurvival2Used() {
+		String exper = "sun.gc.generation.0.space.2.used";
+		return getValueByExper( exper );
+	}
+	
+	/**
+	 * 幸存者1最大容量
+	 * 
+	 * @return
+	 */
+	public String getSurvival1MaxCapacity() {
+		String exper = "sun.gc.generation.0.space.1.maxCapacity";
+		Identifier id = new Identifier( exper );
+		return evaluate( id ).toString();
+	}
+
+	/**
+	 * 幸存者2最大容量
+	 * 
+	 * @return
+	 */
+	public String getSurvival2MaxCapacity() {
+		String exper = "sun.gc.generation.0.space.2.maxCapacity";
+		Identifier id = new Identifier( exper );
+		return evaluate( id ).toString();
+	}
+	
+
+	/**
+	 * Eden容量
+	 * 
+	 * @return
+	 */
+	public String getEdenCapacity() {
+		String exper = "sun.gc.generation.0.space.0.capacity";
+		return getValueByExper( exper );
+	}
+
+	/**
+	 * Eden已使用
+	 * 
+	 * @return
+	 */
+	public String getEdenUsed() {
+		String exper = "sun.gc.generation.0.space.0.used";
+		return getValueByExper( exper );
+	}
+
+	/**
+	 * eden最大容量
+	 * 
+	 * @return
+	 */
+	public String getEdenMaxCapacity() {
+		String exper = "sun.gc.generation.0.space.0.maxCapacity";
+		Identifier id = new Identifier( exper );
+		return evaluate( id ).toString();
+	}
+	
+	/**
+	 * Old容量
+	 * 
+	 * @return
+	 */
+	public String getOldCapacity() {
+		String exper = "sun.gc.generation.1.space.0.capacity";
+		return getValueByExper( exper );
+	}
+
+	/**
+	 * Old已使用
+	 * 
+	 * @return
+	 */
+	public String getOldUsed() {
+		String exper = "sun.gc.generation.1.space.0.used";
+		return getValueByExper( exper );
+	}
+	
+	/**
+	 * old最大容量
+	 * 
+	 * @return
+	 */
+	public String getOldMaxCapacity() {
+		String exper = "sun.gc.generation.1.space.0.maxCapacity";
+		Identifier id = new Identifier( exper );
+		return evaluate( id ).toString();
+	}
+
+	/**
+	 * Perm容量
+	 * 
+	 * @param exper
+	 * @return
+	 */
+	public String getPermCapacity() {
+		String exper = "sun.gc.generation.2.space.0.capacity";
+		Identifier id = new Identifier( exper );
+		return evaluate( id ).toString();
+	}
+
+	/**
+	 * Perm已使用
+	 * 
+	 * @return
+	 */
+	public String getPermUsed() {
+		String exper = "sun.gc.generation.2.space.0.used";
+		Identifier id = new Identifier( exper );
+		return evaluate( id ).toString();
+	}
+	
+	/**
+	 * Perm最大容量
+	 * 
+	 * @param exper
+	 * @return
+	 */
+	public String getPermMaxCapacity() {
+		String exper = "sun.gc.generation.2.space.0.maxCapacity";
+		Identifier id = new Identifier( exper );
+		return evaluate( id ).toString();
+	}
+
+	/**
+	 * Meta容量
+	 * 
+	 * @param exper
+	 * @return
+	 */
+	public String getMetaCapacity() {
+		String exper = "sun.gc.metaspace.capacity";
+		return getValueByExper( exper );
+	}
+
+	/**
+	 * Meta已使用
+	 * 
+	 * @return
+	 */
+	public String getMetaUsed() {
+		String exper = "sun.gc.metaspace.used";
+		return getValueByExper( exper );
+	}
+	
+	/**
+	 * Meta最大容量
+	 * 
+	 * @param exper
+	 * @return
+	 */
+	public String getMetaMaxCapacity() {
+		String exper = "sun.gc.metaspace.maxCapacity";
+		return getValueByExper( exper );
+	}
+
+	private String getValueByExper(String exper) {
+		Identifier id = new Identifier( exper );
+		Object obj = ((Identifier) evaluate( id )).getValue();
+		PerfLongMonitor monitor = (PerfLongMonitor) obj;
+		return monitor.getValue().toString();
+	}
+
+	private Object evaluate(Identifier id) {
+
+		if (id.isResolved()) {
+			return id;
+		}
+		Monitor m = null;
+		try {
+			m = vm_.findByName( id.getName() );
+		} catch (MonitorException e) {
+			e.printStackTrace();
+		}
+		if (m == null) {
+			return new Literal( new Double( Double.NaN ) );
+		}
+		if (m.getVariability() == Variability.CONSTANT) {
+			return new Literal( m.getValue() );
+		}
+		id.setValue( m );
+		return id;
+
 	}
 
 	public static void main(String[] args) {
-		JstatInfo info = new JstatInfo( "1427" );
-		System.out.println( info.getRow() );
+		JstatInfo info = new JstatInfo( 680 );
+		String exper = "sun.gc.generation.0.space.1.maxCapacity";
+		Identifier id = new Identifier( exper );
+		System.out.println( info.evaluate( id ).toString() );
 	}
 
-	/**
-	 * @return the header
-	 */
-	public String getHeader() {
-		return header;
-	}
-
-	/**
-	 * @param header
-	 *            the header to set
-	 */
-	public void setHeader(String header) {
-		this.header = header;
-	}
-
-	/**
-	 * @return the row
-	 */
-	public String getRow() {
-		return row;
-	}
-
-	/**
-	 * @param row
-	 *            the row to set
-	 */
-	public void setRow(String row) {
-		this.row = row;
-	}
 }
