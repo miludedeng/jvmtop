@@ -119,19 +119,26 @@ public class VMDetailView extends AbstractConsoleView {
 		System.out.printf( " CPU: %5.2f%% GC: %5.2f%% HEAP:%5s /%5s NONHEAP:%5s /%5s%n", vmInfo_.getCpuLoad() * 100, vmInfo_.getGcLoad() * 100,
 				toMB( vmInfo_.getHeapUsed() ), toMB( vmInfo_.getHeapMax() ), toMB( vmInfo_.getNonHeapUsed() ), toMB( vmInfo_.getNonHeapMax() ) );
 
-		System.out.println( "Heap:" );
-
-		System.out.println( jstatInfo_.getHeader() );
-		System.out.println( jstatInfo_.getRow() );
+		System.out.printf( " Eden: %s/%s(%s) from: %s/%s(%s) to: %s/%s(%s)\r\n Old: %s/%s(%s)", 
+				toMB(Long.parseLong( jstatInfo_.getEdenUsed())), toMB(Long.parseLong(jstatInfo_.getEdenCapacity())),toMB(Long.parseLong( jstatInfo_.getEdenMaxCapacity())),
+				toMB(Long.parseLong( jstatInfo_.getSurvival1Used())), toMB(Long.parseLong(jstatInfo_.getSurvival1Capacity())),toMB(Long.parseLong(jstatInfo_.getSurvival1MaxCapacity())),
+				toMB(Long.parseLong( jstatInfo_.getSurvival2Used())), toMB(Long.parseLong(jstatInfo_.getSurvival2Capacity())),toMB(Long.parseLong(jstatInfo_.getSurvival2MaxCapacity())),
+				toMB(Long.parseLong( jstatInfo_.getOldUsed())), toMB(Long.parseLong(jstatInfo_.getOldCapacity())), toMB(Long.parseLong(jstatInfo_.getOldMaxCapacity())));
+		if("NaN".equals( jstatInfo_.getPermUsed())){
+			System.out.printf( " Metaspace: %s/%s(%s)", toMB(Long.parseLong( jstatInfo_.getMetaUsed())), toMB(Long.parseLong(jstatInfo_.getMetaCapacity())), toMB(Long.parseLong(jstatInfo_.getMetaMaxCapacity())));
+		}else{
+			System.out.printf( " Perm: %s/%s", toMB(Long.parseLong( jstatInfo_.getPermUsed())), toMB(Long.parseLong(jstatInfo_.getPermCapacity())), toMB(Long.parseLong(jstatInfo_.getPermMaxCapacity())));
+		}
 		System.out.println();
 		printTopThreads();
 	}
+
 
 	/**
 	 * @throws Exception
 	 */
 	private void printTopThreads() throws Exception {
-		System.out.println( "  Thread count: "+ vmInfo_.getThreadCount() );
+		System.out.println( "  Thread count: " + vmInfo_.getThreadCount() );
 		System.out.printf( "  TID   NAME                                    STATE    CPU  TOTALCPU BLOCKEDBY%n" );
 
 		if (vmInfo_.getThreadMXBean().isThreadCpuTimeSupported()) {
